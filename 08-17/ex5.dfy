@@ -17,12 +17,13 @@ method Factorial(n:nat) returns (r:nat)
 ensures r == Fat(n)
 {
     r := 1;
-    var i := 0;
-    while i < n
+    var i := 1;
+    while i <= n
+        invariant 1 <= i <= n+1
+        invariant r == Fat(i-1)
     {
-        i := i+1;
         r := r*i;
+        i := i+1;   
     }
-
     return r;
 }

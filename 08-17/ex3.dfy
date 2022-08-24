@@ -1,5 +1,5 @@
 function Sum(m:nat, n:nat):nat
-//decreases: varian expression, that proofs the will end
+//decreases: varian expression, that proofs it will end
 decreases n 
 {
     if n == 0 
