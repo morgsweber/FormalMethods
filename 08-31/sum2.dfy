@@ -1,3 +1,4 @@
+// add new element
 function sumOpen(a:array<nat>, i:nat):nat
 requires i <= a.Length
 reads a 
