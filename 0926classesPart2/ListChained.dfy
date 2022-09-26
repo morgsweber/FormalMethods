@@ -1,25 +1,25 @@
 class Nodo {
-  var dado: int
-  var proximo: Nodo? //a referência pode ser null, ? indica um tipo anulável
+  var data: int
+  var next: Nodo? //a referência pode ser null, ? indica um tipo anulável
 
-  ghost var ConteudoCauda: seq<int>
+  ghost var TailContent: seq<int>
   ghost var Repr: set<object>
 
   predicate Valid()
     reads this, Repr
   {
     this in Repr &&
-    (proximo != null ==> proximo in Repr && proximo.Repr <= Repr) &&
-    (proximo == null ==> ConteudoCauda == []) &&
-    (proximo != null ==> ConteudoCauda == [proximo.dado] + proximo.ConteudoCauda)
+    (next != null ==> next in Repr && next.Repr <= Repr) &&
+    (next == null ==> TailContent == []) &&
+    (next != null ==> TailContent == [next.data] + next.TailContent)
   }
 
   constructor ()
     ensures Valid() && fresh(Repr - {this})
-    ensures proximo == null
+    ensures next == null
   {
-    proximo := null;
-    ConteudoCauda := [];
+    next := null;
+    TailContent := [];
     Repr := {this};
   }
 }
@@ -28,7 +28,7 @@ class LinkedList
 {
   var cabeca: Nodo;
   var cauda: Nodo;
-  ghost var Conteudo: seq<int>
+  ghost var Content: seq<int>
   ghost var Espinha: set<Nodo>
   ghost var Repr: set<object>
 
@@ -38,31 +38,31 @@ class LinkedList
     this in Repr && Espinha <= Repr &&
     cabeca in Espinha &&
     cauda in Espinha &&
-    cauda.proximo == null &&
+    cauda.next == null &&
     (forall n :: n in Espinha ==> n.Repr <= Repr && this !in n.Repr &&
                                   n.Valid() &&
-                                  (n.proximo == null ==> n == cauda)
+                                  (n.next == null ==> n == cauda)
     ) &&
-    (forall n :: n in Espinha ==> n.proximo != null ==> n.proximo in Espinha) &&
-    Conteudo == cabeca.ConteudoCauda
+    (forall n :: n in Espinha ==> n.next != null ==> n.next in Espinha) &&
+    Content == cabeca.TailContent
   }
 
   constructor ()
     ensures Valid() && fresh(Repr - {this})
-    ensures |Conteudo| == 0
+    ensures |Content| == 0
   {
     var n := new Nodo();
     cabeca := n;
     cauda := n;
-    Conteudo := n.ConteudoCauda;
+    Content := n.TailContent;
     Repr := {this} + n.Repr;
     Espinha := {n};
   }
 
   method EstaVazio() returns (b:bool)
     requires Valid()
-    ensures b <==> |Conteudo| == 0
-    ensures Conteudo == old(Conteudo)
+    ensures b <==> |Content| == 0
+    ensures Content == old(Content)
     ensures Valid()
   {
     return cabeca == cauda;
@@ -70,28 +70,28 @@ class LinkedList
 
   method Cabeca() returns (e:int)
     requires Valid()
-    requires |Conteudo| > 0
-    ensures e == Conteudo[0]
+    requires |Content| > 0
+    ensures e == Content[0]
     ensures Valid()
   {
-    return cabeca.proximo.dado;
+    return cabeca.next.data;
   }
 
   method Inserir(e:int)
     requires Valid()
     modifies Repr
     ensures Valid() && fresh(Repr - old(Repr))
-    ensures Conteudo == old(Conteudo) + [e]
+    ensures Content == old(Content) + [e]
   {
     var n := new Nodo();
-    n.dado := e;
-    cauda.proximo := n;
+    n.data := e;
+    cauda.next := n;
     cauda := n;
     forall m | m in Espinha
     {
-      m.ConteudoCauda := m.ConteudoCauda + [e];
+      m.TailContent := m.TailContent + [e];
     }
-    Conteudo := cabeca.ConteudoCauda;
+    Content := cabeca.TailContent;
     forall m | m in Espinha
     {
       m.Repr := m.Repr + n.Repr;
