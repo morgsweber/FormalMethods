@@ -16,16 +16,16 @@ class Counter
     var decs: Cell;
     // value is a abstract representation
     ghost var value: int;
-    // Dynamic ontrol of dynamic frames
+    // Dynamic control of dynamic frames
     // Repr is the collection of objects that represent implemented class
-    // In this case will be 'this', 'incs' and 'decs' 
-    ghost var Repr: set<object>;
+    // In this case will be 'this (counter)', 'incs' (Cell 1) and 'decs' (Cell 2) 
+    ghost var Repr: set<object> // dynamic frame 
 
-    predicate Valid()
+    predicate Valid() // the valid should be true in the requires and ensures of all methods
       reads this, Repr
     {
-        this in Repr &&
-        incs in Repr &&
+        this in Repr && 
+        incs in Repr &&// incs and decs should be in Repr to we have the reference to the object
         decs in Repr &&
         incs != decs &&
         value == incs.data - decs.data &&
@@ -40,7 +40,7 @@ class Counter
     {
         incs := new Cell();
         decs := new Cell();
-        value := 0;
+        value := 0; // light gray is especification
         Repr := {this, incs, decs};
     }
 
@@ -48,6 +48,7 @@ class Counter
       requires Valid()
       modifies Repr
       ensures value == old(value) + 1
+      // we didn't put ensures to incs.data because this expose the internal object's variable
       ensures Valid()
       ensures fresh(Repr - old(Repr))
     {
