@@ -27,7 +27,7 @@ class Nodo {
 class LinkedList
 {
   var cabeca: Nodo;
-  var cauda: Nodo;
+  var tail: Nodo;
   ghost var Content: seq<int>
   ghost var Espinha: set<Nodo>
   ghost var Repr: set<object>
@@ -37,11 +37,11 @@ class LinkedList
   {
     this in Repr && Espinha <= Repr &&
     cabeca in Espinha &&
-    cauda in Espinha &&
-    cauda.next == null &&
+    tail in Espinha &&
+    tail.next == null &&
     (forall n :: n in Espinha ==> n.Repr <= Repr && this !in n.Repr &&
                                   n.Valid() &&
-                                  (n.next == null ==> n == cauda)
+                                  (n.next == null ==> n == tail)
     ) &&
     (forall n :: n in Espinha ==> n.next != null ==> n.next in Espinha) &&
     Content == cabeca.TailContent
@@ -53,7 +53,7 @@ class LinkedList
   {
     var n := new Nodo();
     cabeca := n;
-    cauda := n;
+    tail := n;
     Content := n.TailContent;
     Repr := {this} + n.Repr;
     Espinha := {n};
@@ -65,7 +65,7 @@ class LinkedList
     ensures Content == old(Content)
     ensures Valid()
   {
-    return cabeca == cauda;
+    return cabeca == tail;
   }
 
   method Cabeca() returns (e:int)
@@ -85,8 +85,8 @@ class LinkedList
   {
     var n := new Nodo();
     n.data := e;
-    cauda.next := n;
-    cauda := n;
+    tail.next := n;
+    tail := n;
     forall m | m in Espinha
     {
       m.TailContent := m.TailContent + [e];
