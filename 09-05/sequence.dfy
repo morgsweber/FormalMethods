@@ -20,4 +20,7 @@ method Main()
     assert s[2..2] == [];
 
     assert s[2 := 0] == [1,2,0,4,5]; //the same list, but with a 0 in the second position
+
+    s := s - 1;
+
 }
